@@ -4,12 +4,24 @@ import math
 # Initialize pygame
 pygame.init()
 
+class arcademachine:
+    x, y = 0, 0
+    tag = ""
+
 # Game Variables
-enemies = []
+# Marty's Game
+gameone = arcademachine()
+gameone.x, gameone.y = 4, 4
+# Aarons Game
+gametwo = arcademachine()
+gametwo.x, gametwo.y = 6, 4
+# Ben
+gamethree = arcademachine()
+gamethree.x, gamethree.y = 8, 4
 
 # Constants
 WIDTH, HEIGHT = 800, 600
-FOV = math.pi / 2
+FOV = math.pi / 3
 HALF_FOV = FOV / 2
 NUM_RAYS = int(input(
     "How many rays would you like to cast, the more rays the higher the resolution. (I recomend no more than 300)\n"))
@@ -30,20 +42,20 @@ TILE_SIZE = 100
 map_grid = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 2, 0, 2, 0, 2, 0, 2, 0, 1],
+    [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 2, 0, 0, 0, 0, 0, 2, 0, 1],
+    [1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 2, 0, 0, 0, 0, 0, 2, 0, 1],
+    [1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 2, 0, 2, 0, 2, 0, 2, 0, 1],
+    [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
 # Pygame settings
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Simple Raycaster with Controls")
+pygame.display.set_caption("3D Arcade")
 clock = pygame.time.Clock()
 
 
@@ -60,12 +72,10 @@ def cast_ray(x, y, angle):
         else:
             return float('inf')
 
-
 def is_wall(x, y):
     if 0 <= x // TILE_SIZE < len(map_grid[0]) and 0 <= y // TILE_SIZE < len(map_grid):
         return map_grid[int(y) // TILE_SIZE][int(x) // TILE_SIZE] == 1
     return True
-
 
 def render():
     for ray in range(NUM_RAYS):
@@ -92,6 +102,33 @@ def render():
                                      HEIGHT // 2 - (wall_height // 2) - (height // 2 * wall_height),
                                      WIDTH // NUM_RAYS + 1, wall_height * height))
 
+    ########################################
+    dx = gameone.x - player_pos[0] / TILE_SIZE
+    dy = gameone.y - player_pos[1] / TILE_SIZE
+    distance = math.sqrt(dx ** 2 + dy ** 2)
+
+    gameoneangle = math.atan2(dy, dx)
+    rel_angle = gameoneangle - player_angle
+
+    while rel_angle > math.pi:
+        rel_angle -= 2 * math.pi
+    while rel_angle < -math.pi:
+        rel_angle += 2 * math.pi
+
+    cast_ray(player_pos[0], player_pos[1], rel_angle)[1]
+
+    if  > distance:
+        # Normalize the relative angle within the FOV
+        relative_angle_within_fov = (rel_angle + FOV / 2) / FOV
+
+        screen_x = relative_angle_within_fov * WIDTH
+
+        if 0 <= screen_x <= WIDTH:
+            pygame.draw.rect(screen, "green",
+                             (screen_x - 100 / distance, HEIGHT // 2 - 200 / distance,
+                              200 / distance, 400 / distance))
+
+    #########################################
 
 running = True
 
