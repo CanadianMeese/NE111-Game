@@ -1,15 +1,16 @@
 import pygame
-from random import randint
+import random
 
 # Initialize Pygame
 pygame.init()
 
 # Screen setup and font
 font = pygame.font.Font(None, 36)
+titleFont = pygame.font.Font(None, 72)
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
 
-# Colors
+# Colors (red, green, blue)
 red = (255, 0, 0)
 white = (255, 255, 255)
 orange = (255, 95, 5)
@@ -27,38 +28,52 @@ fFace = [green] * 9
 bFace = [blue] * 9
 solvedCube = [rFace, uFace, lFace, dFace, fFace, bFace]
 cube = solvedCube
-def scramble(cu):
-   for i in range(30):
-       randMove = randint(1,6)
-       if (randMove == 1):
-           cu = right(cu)
-       elif (randMove == 2):
-           cu = left(cu)
-       elif (randMove == 3):
-           cu = up(cu)
-       elif (randMove == 4):
-           cu = down(cu)
-       elif (randMove == 5):
-           cu = back(cu)
-       elif (randMove == 6):
-           cu = front(cu)
-   return(cu)
-def arcadeScramble(cu, round):
-    for _ in range(round):
-        randMove = randint(1, 6)
-        if randMove == 1:
-            cu = right(cu)
-        elif randMove == 2:
-            cu = left(cu)
-        elif randMove == 3:
-            cu = up(cu)
-        elif randMove == 4:
-            cu = down(cu)
-        elif randMove == 5:
-            cu = back(cu)
-        elif randMove == 6:
-            cu = front(cu)
-    return cu
+def scramble(cube):
+    move_functions = [right, left, up, down, back, front]
+
+    for _ in range(30):
+        move = random.choice(move_functions)
+        cube = move(cube)
+
+    return cube
+def generateArcadeSequence(length=50):
+    base_moves = ['R', 'L', 'U', 'D', 'F', 'B']
+    sequence = []
+    last_move = None
+    second_last_move = None
+
+    for _ in range(length):
+        available_moves = base_moves.copy()
+
+        # Remove inverse of last move to avoid direct cancellation
+        if last_move:
+            inverse_move = last_move[0] + ("'" if last_move[-1] != "'" else "")
+            if inverse_move in available_moves:
+                available_moves.remove(inverse_move)
+
+            # Remove moves that would cause indirect cancellation without layer interaction
+            if second_last_move and (last_move[0] in ['R', 'L'] and second_last_move[0] in ['R', 'L'] or
+                                     last_move[0] in ['U', 'D'] and second_last_move[0] in ['U', 'D'] or
+                                     last_move[0] in ['F', 'B'] and second_last_move[0] in ['F', 'B']):
+                if second_last_move[0] in available_moves:
+                    available_moves.remove(second_last_move[0])
+
+        move = random.choice(available_moves)
+        is_prime = random.choice([True, False])
+        full_move = move + "'" if is_prime else move
+
+        # Correct direct cancellations
+        if last_move and full_move[0] == last_move[0] and \
+           ((full_move[-1] == "'" and last_move[-1] != "'") or (full_move[-1] != "'" and last_move[-1] == "'")):
+            full_move = last_move  # Duplicate the last move to avoid direct cancellation
+
+        # Update last moves
+        second_last_move = last_move
+        last_move = full_move
+
+        sequence.append(full_move)
+
+    return sequence
 def rotateCubeUp(rCube):
     tempLFace =[rCube[2][2],rCube[2][5],rCube[2][8],rCube[2][1],rCube[2][4],rCube[2][7],rCube[2][0],rCube[2][3],rCube[2][6]]
     tempRFace =[rCube[0][6],rCube[0][3],rCube[0][0],rCube[0][7],rCube[0][4],rCube[0][1],rCube[0][8],rCube[0][5],rCube[0][2]]
@@ -252,6 +267,7 @@ def drawCube():
     pygame.draw.rect(screen, cube[4][6], cube46)
     pygame.draw.rect(screen, cube[4][7], cube47)
     pygame.draw.rect(screen, cube[4][8], cube48)
+
     pygame.draw.polygon(screen, cube[0][0], rfacecube(460, 250))
     pygame.draw.polygon(screen, cube[0][1], rfacecube(475, 218))
     pygame.draw.polygon(screen, cube[0][2], rfacecube(490, 186))
@@ -272,6 +288,16 @@ def drawCube():
     pygame.draw.polygon(screen, cube[1][2], ufacecube(438, 250-60))
 
     return None
+def orientCube(c):
+    if (c[1][4] != white and c[3][4] != white):
+        while c[4][4] != white:
+            c = rotateCubeRight(c)
+        c = rotateCubeUp(c)
+    elif c[3][4] == white:
+        c = rotateCubeUp(rotateCubeUp(c))
+    while c[4][4] != green:
+        c = rotateCubeRight(c)
+    return c
 def draw_controls(screen, font):
     controls_text = [
         "Controls:",
@@ -309,17 +335,34 @@ def start_screen():
 
         screen.fill(black)
         # Drawing the start screen elements
+        title = titleFont.render('Cube Town', True, white)
+        title_rect = title.get_rect(center=(width / 2, height / 4))
         startPrompt = font.render('Press "Enter" to Start', True, white)
         startPrompt_rect = startPrompt.get_rect(center=(width / 2, height / 3))
         instructionsPrompt = font.render('Press "I" for Instructions', True, white)
         instructionsPrompt_rect = instructionsPrompt.get_rect(center=(width / 2, (height / 3) + 50))
         arcadePrompt = font.render('Press "A" for Arcade', True, white)
         arcadePrompt_rect = arcadePrompt.get_rect(center=(width / 2, (height / 3) + 100))
+        screen.blit(title, title_rect)
         screen.blit(startPrompt, startPrompt_rect)
         screen.blit(instructionsPrompt, instructionsPrompt_rect)
         screen.blit(arcadePrompt, arcadePrompt_rect)
 
         pygame.display.update()
+
+def draw_text(text, position, font, color=(255, 255, 255)):
+    text_surface = font.render(text, True, color)
+    screen.blit(text_surface, position)
+def execute_move(cube, move):
+    move_functions = {
+        'R': right, 'R\'': lambda c: right(right(right(c))),
+        'L': left, 'L\'': lambda c: left(left(left(c))),
+        'U': up, 'U\'': lambda c: up(up(up(c))),
+        'D': down, 'D\'': lambda c: down(down(down(c))),
+        'F': front, 'F\'': lambda c: front(front(front(c))),
+        'B': back, 'B\'': lambda c: back(back(back(c)))
+    }
+    return move_functions[move](cube)
 
 # Main game loop
 while game_running:
@@ -330,6 +373,7 @@ while game_running:
         elif result == 'game':
             in_start_screen = False
             in_solver = True
+            in_arcade = False
         elif result == 'instructions':
             screen.fill(black)
             draw_controls(screen, font)
@@ -342,6 +386,7 @@ while game_running:
                     if event.type == pygame.KEYDOWN or event.type == pygame.QUIT:
                         waiting_for_key = False
             in_start_screen = True
+            in_arcade = False
         elif result == 'arcade':
             roundStart = True
             round = 1
@@ -417,12 +462,19 @@ while game_running:
 
         pygame.display.update()
     if in_arcade:
-        screen.fill(black) # Clear the screen before drawing the cube
+        screen.fill(black)
         drawCube()
+        round_text = f"Round: {round}"
+        draw_text(round_text, (10, 10), font)
         if roundStart:
-            cube = arcadeScramble(cube,round)
+            if round == 1:
+                arcade_sequence = generateArcadeSequence(50)
+                cube = solvedCube  # Start with a solved cube
+            cube = [row[:] for row in solvedCube]
+            for move in arcade_sequence[:round]:  # Execute moves up to the current round
+                cube = execute_move(cube, move)
             roundStart = False
-        if cube == solvedCube:
+        if orientCube(cube) == solvedCube:
             round = round + 1
             roundStart = True
         for event in pygame.event.get():
