@@ -1,5 +1,6 @@
 import pygame
 import math
+import rubikscubemain
 
 # Initialize pygame
 pygame.init()
@@ -14,12 +15,15 @@ class arcademachine:
 # Marty's Game
 gameone = arcademachine()
 gameone.x, gameone.y = 0, 0
+gameonejustin = False
 # Aarons Game
 gametwo = arcademachine()
 gametwo.x, gametwo.y = 0, 0
+gametwojustin = False
 # Ben
 gamethree = arcademachine()
 gamethree.x, gamethree.y = 0, 0
+gamethreejustin = False
 
 # Constants
 WIDTH, HEIGHT = 800, 600
@@ -101,7 +105,8 @@ player_pos = [1 * TILE_SIZE, 1 * TILE_SIZE]
 player_angle = 0
 
 def GameOne():
-    var = 1
+    rubikscubemain.mainrubiks()
+    gameonejustin = True
 def GameTwo():
     var = 1
 
@@ -330,11 +335,15 @@ while running:
         if keys[pygame.K_d]:
             player_angle += TURN_SPEED
 
-        if keys[pygame.K_ESCAPE]:
+        if keys[pygame.K_ESCAPE] and gameonejustin == False and gametwojustin == False and gamethreejustin == False:
             # Reset Player
             player_pos = [1 * TILE_SIZE, 1 * TILE_SIZE]
             player_angle = 0
             maze_running = False
+        elif keys[pygame.K_ESCAPE] == False:
+            gameonejustin = False
+            gametwojustin = False
+            gamethreejustin = False
 
         # Update game state and render
         screen.fill(BLACK)
