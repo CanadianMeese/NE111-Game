@@ -1,6 +1,11 @@
-import pygame
-import math
-import rubikscubemain
+import pygame  # Import the pygame library for creating games
+import math  # Import math module for mathematical operations
+import pygame  # Duplicate import, not necessary
+from pygame.locals import *  # Import constants from pygame
+import time  # Import time module for time-related tasks
+import random  # Import random module for random number generation
+import rubikscubemain  # Import a custom module for a Rubik's Cube game
+import snakegamemain  # Import a custom module for a Snake game
 
 # Initialize pygame
 pygame.init()
@@ -108,7 +113,8 @@ def GameOne():
     rubikscubemain.mainrubiks()
     gameonejustin = True
 def GameTwo():
-    var = 1
+    snakegamemain.snakegame()
+    gametwojustin = True
 
 def GameThree():
     var = 1
