@@ -25,20 +25,20 @@ gameone.x, gameone.y = 0, 0
 # Set the tag of the arcade machine, True means we just exited the game
 gameonejustin = False
 #Initialize pngs
-gameoneimage = pygame.image.load("Snake.png")
+gameoneimage = pygame.image.load("Snake (Generated with Dalle3).png")
 
 # Aarons Game
 gametwo = arcademachine()
 gametwo.x, gametwo.y = 0, 0
 gametwojustin = False
-gametwoimage = pygame.image.load("Rubiks.png")
+gametwoimage = pygame.image.load("Rubiks (Generated with Dalle3).png")
 
 
 # Ben
 gamethree = arcademachine()
 gamethree.x, gamethree.y = 0, 0
 gamethreejustin = False
-gamethreeimage = pygame.image.load("Minefield.png")
+gamethreeimage = pygame.image.load("Minefield (Generated with Dalle3).png")
 
 # Constants
 WIDTH, HEIGHT = 800, 600
@@ -144,7 +144,7 @@ def GameOne():
     gameonejustin = True # Set the gameonejustin variable to True
     
 def GameTwo():
-    rubikscubemain.mainrubiks() # Call the main function from the rubikscubemain module
+    rubikscubemain.rubiksgame() # Call the main function from the rubikscubemain module
     gametwojustin = True
 
 def GameThree():
@@ -482,7 +482,7 @@ while running: # Main game loop
 
     # Render text to prompt the player to enter the challenging maze
     text_surface = font.render("Press H To Enter The Challenge Maze", True, "white")
-    text_rect = text_surface.get_rect(center=(WIDTH / 2, HEIGHT / 2 - 40))
+    text_rect = text_surface.get_rect(center=(WIDTH / 2, HEIGHT / 2 - 50))
     screen.blit(text_surface, text_rect)
     
     # Render text to prompt the player to enter the easy maze
@@ -492,7 +492,7 @@ while running: # Main game loop
 
     # Render text to prompt the player to enter the easy maze
     text_surface = font.render("Press A To Enter The Arcade", True, "white")
-    text_rect = text_surface.get_rect(center=(WIDTH / 2, HEIGHT / 2 + 40))
+    text_rect = text_surface.get_rect(center=(WIDTH / 2, HEIGHT / 2 + 50))
     screen.blit(text_surface, text_rect)
 
     pygame.display.flip() # Update the display
