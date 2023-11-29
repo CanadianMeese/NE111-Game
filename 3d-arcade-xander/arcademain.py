@@ -1,6 +1,5 @@
 import pygame  # Import the pygame library for creating games
-import math  # Import math module for mathematical operations
-import pygame  # Duplicate import, not necessary
+import math  # Import math module for mathematical operation
 from pygame.locals import *  # Import constants from pygame
 import time  # Import time module for time-related tasks
 import random  # Import random module for random number generation
@@ -25,16 +24,21 @@ gameone = arcademachine()
 gameone.x, gameone.y = 0, 0
 # Set the tag of the arcade machine, True means we just exited the game
 gameonejustin = False
+#Initialize pngs
+gameoneimage = pygame.image.load("Snake.png")
 
 # Aarons Game
 gametwo = arcademachine()
 gametwo.x, gametwo.y = 0, 0
 gametwojustin = False
+gametwoimage = pygame.image.load("Rubiks.png")
+
 
 # Ben
 gamethree = arcademachine()
 gamethree.x, gamethree.y = 0, 0
-gamethreejustin = False 
+gamethreejustin = False
+gamethreeimage = pygame.image.load("Minefield.png")
 
 # Constants
 WIDTH, HEIGHT = 800, 600
@@ -50,8 +54,26 @@ SPEED = 6  # Movement speed
 TURN_SPEED = 0.05 # Turning speed
 VIEW_DIST = 300 # Maximum view distance
 
+delta_time = 1
+
 # Map settings
 TILE_SIZE = 100 # Size of each tile in the map
+
+map_grid_arcade = [ #### Start is at (1,1)
+    [1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,1],
+    [1,0,1,1,1,1,1],
+    [1,0,0,0,0,0,1],
+    [1,0,1,1,1,1,1],
+    [1,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1]
+]
+
+# Positions of the arcade machines
+gameone_arcade_pos = [5.5, 1.5]
+gametwo_arcade_pos = [5.5, 3.5]
+gamethree_arcade_pos = [5.5, 5.5]
+
 map_grid_easy = [ #### Start is at (1,1)
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1],
@@ -118,11 +140,11 @@ player_pos = [1 * TILE_SIZE, 1 * TILE_SIZE] # Player position
 player_angle = 0 # Player angle
 
 def GameOne():
-    rubikscubemain.mainrubiks() # Call the main function from the rubikscubemain module
+    snakegamemain.snakegame() # Call the main function from the snakegamemain module
     gameonejustin = True # Set the gameonejustin variable to True
     
 def GameTwo():
-    snakegamemain.snakegame() # Call the main function from the snakegamemain module
+    rubikscubemain.mainrubiks() # Call the main function from the rubikscubemain module
     gametwojustin = True
 
 def GameThree():
@@ -153,10 +175,14 @@ def RenderGameOne():
 
         # If the x coordinate of the arcade machine is within the screen
         if 0 <= screen_x <= WIDTH: 
-            # Draw a rectangle on the screen
-            pygame.draw.rect(screen, "green",
-                             (screen_x - 200 / distance, HEIGHT // 2 - 350 / distance,
-                              400 / distance, 700 / distance)) # The rectangle is drawn with the following parameters: (screen, color, (x, y, width, height))
+            # Draw the png to the screen
+            scaled_width = gameoneimage.get_rect().width * 1.1 / distance
+            scaled_height = gameoneimage.get_rect().height * 1.1 / distance
+            scaled_image = pygame.transform.scale(gameoneimage, (int(scaled_width), int(scaled_height)))
+
+            # Draw the image onto the screen at the updated rect position
+            screen.blit(scaled_image, (screen_x - scaled_width / 2, HEIGHT // 2 - scaled_height / 2,
+                              scaled_width / distance, scaled_height / distance))
 
 def RenderGameTwo():
     ##Game Two Rendering
@@ -183,11 +209,14 @@ def RenderGameTwo():
 
         # If the x coordinate of the arcade machine is within the screen
         if 0 <= screen_x <= WIDTH:
-            # Draw a rectangle on the screen
-            pygame.draw.rect(screen, "red",
-                             (screen_x - 200 / distance, HEIGHT // 2 - 350 / distance,
-                              400 / distance, 700 / distance)) # The rectangle is drawn with the following parameters: (screen, color, (x, y, width, height))
+            # Draw the png to the screen
+            scaled_width = gametwoimage.get_rect().width  / distance
+            scaled_height = gametwoimage.get_rect().height  / distance
+            scaled_image = pygame.transform.scale(gametwoimage, (int(scaled_width), int(scaled_height)))
 
+            # Draw the image onto the screen at the updated rect position
+            screen.blit(scaled_image, (screen_x - scaled_width / 2, HEIGHT // 2 - scaled_height / 2,
+                                       scaled_width / distance, scaled_height / distance))
 def RenderGameThree():
     ##Game Three Rendering
     ########################################
@@ -213,11 +242,14 @@ def RenderGameThree():
 
         # If the x coordinate of the arcade machine is within the screen
         if 0 <= screen_x <= WIDTH:
-            # Draw a rectangle on the screen
-            pygame.draw.rect(screen, "blue",
-                             (screen_x - 200 / distance, HEIGHT // 2 - 350 / distance,
-                              400 / distance, 700 / distance)) # The rectangle is drawn with the following parameters: (screen, color, (x, y, width, height))
+            # Draw the png to the screen
+            scaled_width = gamethreeimage.get_rect().width  / distance
+            scaled_height = gamethreeimage.get_rect().height  / distance
+            scaled_image = pygame.transform.scale(gamethreeimage, (int(scaled_width), int(scaled_height)))
 
+            # Draw the image onto the screen at the updated rect position
+            screen.blit(scaled_image, (screen_x - scaled_width / 2, HEIGHT // 2 - scaled_height / 2,
+                                       scaled_width / distance, scaled_height / distance))
     #########################################
 
 # Pygame settings
@@ -319,7 +351,7 @@ pygame.mouse.set_visible(False) # Hide the mouse cursor
 
 while running: # Main game loop
     pygame.display.set_caption(f'{clock.get_fps() : .1f}') # Set the caption of the window to the FPS
-    clock.tick(FPS) # Set the FPS
+    delta_time = clock.tick(FPS) / 25
 
     for event in pygame.event.get(): # Loop through each event
         if event.type == pygame.QUIT: # If the event is a quit event
@@ -346,10 +378,20 @@ while running: # Main game loop
         gamethree.x = gamethree_easy_pos[0]
         gamethree.y = gamethree_easy_pos[1]
         maze_running = True
+    if keys[pygame.K_a]: # If the player presses a
+        map_grid = map_grid_arcade # Set the map grid to the easy map grid
+        gameone.x = gameone_arcade_pos[0]
+        gameone.y = gameone_arcade_pos[1]
+        gametwo.x = gametwo_arcade_pos[0]
+        gametwo.y = gametwo_arcade_pos[1]
+        gamethree.x = gamethree_arcade_pos[0]
+        gamethree.y = gamethree_arcade_pos[1]
+        maze_running = True
 
     # Maze game loop
     while maze_running:
-        clock.tick(FPS)
+        pygame.display.set_caption(f'{clock.get_fps() : .1f}') # Set the caption of the window to the FPS
+        delta_time = clock.tick(FPS) / 25
 
         # Event handling
         for event in pygame.event.get():
@@ -360,20 +402,20 @@ while running: # Main game loop
         keys = pygame.key.get_pressed()
 
         # Player movement, and collision detection
-        new_x = player_pos[0] + math.cos(player_angle) * SPEED * (keys[pygame.K_w] - keys[pygame.K_s]) # Calculate the new x coordinate of the player
+        new_x = player_pos[0] + math.cos(player_angle) * SPEED * delta_time * (keys[pygame.K_w] - keys[pygame.K_s]) # Calculate the new x coordinate of the player
         new_y = player_pos[1] 
         if not is_wall(new_x, new_y):
             player_pos[0] = new_x # Set the x coordinate of the player to the new x coordinate
 
         new_x = player_pos[0] 
-        new_y = player_pos[1] + math.sin(player_angle) * SPEED * (keys[pygame.K_w] - keys[pygame.K_s]) # Calculate the new y coordinate of the player
+        new_y = player_pos[1] + math.sin(player_angle) * SPEED * delta_time * (keys[pygame.K_w] - keys[pygame.K_s]) # Calculate the new y coordinate of the player
         if not is_wall(new_x, new_y):
             player_pos[1] = new_y # Set the y coordinate of the player to the new y coordinate
 
         if keys[pygame.K_a]: # If the player presses a
-            player_angle -= TURN_SPEED # Decrement the player angle by the turn speed
+            player_angle -= TURN_SPEED * delta_time # Decrement the player angle by the turn speed
         if keys[pygame.K_d]: # If the player presses d
-            player_angle += TURN_SPEED # Increment the player angle by the turn speed
+            player_angle += TURN_SPEED * delta_time # Increment the player angle by the turn speed
 
         # If the player presses escape
         if keys[pygame.K_ESCAPE] and gameonejustin == False and gametwojustin == False and gamethreejustin == False:
@@ -397,7 +439,8 @@ while running: # Main game loop
 
         if (distance1 < 1): # If the distance between the player and the arcade machine is less than 1
             # Prompt the player to enter the game with rendered text
-            text_surface = font.render("Press F To Enter", True, "black")
+            pygame.draw.rect(screen, "white", (WIDTH // 2 - 210, HEIGHT // 2 - 15, 420, 30))
+            text_surface = font.render("Press F To Enter The Snake Game", True, "black")
             text_rect = text_surface.get_rect(center=(WIDTH / 2, HEIGHT / 2))
             screen.blit(text_surface, text_rect)
             if keys[pygame.K_f]: # If the player presses f
@@ -409,7 +452,8 @@ while running: # Main game loop
 
         if (distance2 < 1): # If the distance between the player and the arcade machine is less than 1
             # Prompt the player to enter the game with rendered text
-            text_surface = font.render("Press F To Enter", True, "black")
+            pygame.draw.rect(screen, "white", (WIDTH // 2 - 250, HEIGHT // 2 - 15, 500, 30))
+            text_surface = font.render("Press F To Enter The Rubiks Cube Game", True, "black")
             text_rect = text_surface.get_rect(center=(WIDTH / 2, HEIGHT / 2))
             screen.blit(text_surface, text_rect)
             if keys[pygame.K_f]: # If the player presses f
@@ -421,13 +465,15 @@ while running: # Main game loop
 
         if (distance3 < 1): # If the distance between the player and the arcade machine is less than 1
             # Prompt the player to enter the game with rendered text
-            text_surface = font.render("Press F To Enter", True, "black")
+            pygame.draw.rect(screen, "white", (WIDTH // 2 - 250, HEIGHT // 2 - 15, 500, 30))
+            text_surface = font.render("Press F To Enter The Minefield Game", True, "black")
             text_rect = text_surface.get_rect(center=(WIDTH / 2, HEIGHT / 2))
             screen.blit(text_surface, text_rect)
             if keys[pygame.K_f]: # If the player presses f
                 GameThree() # Run Game Three
 
-        text_surface = font.render("Press ESC To Exit The Maze", True, "white") # Render text to prompt the player to exit the maze
+        pygame.draw.rect(screen, "white", (0,0,350,30))
+        text_surface = font.render("Press ESC To Exit The Maze", True, "black") # Render text to prompt the player to exit the maze
         screen.blit(text_surface, (3,3))
 
         pygame.display.flip() # Update the display
@@ -436,12 +482,17 @@ while running: # Main game loop
 
     # Render text to prompt the player to enter the challenging maze
     text_surface = font.render("Press H To Enter The Challenge Maze", True, "white")
-    text_rect = text_surface.get_rect(center=(WIDTH / 2, HEIGHT / 2 - 30))
+    text_rect = text_surface.get_rect(center=(WIDTH / 2, HEIGHT / 2 - 40))
     screen.blit(text_surface, text_rect)
     
     # Render text to prompt the player to enter the easy maze
     text_surface = font.render("Press E To Enter The Easy Maze", True, "white")
-    text_rect = text_surface.get_rect(center=(WIDTH / 2, HEIGHT / 2 + 30))
+    text_rect = text_surface.get_rect(center=(WIDTH / 2, HEIGHT / 2))
+    screen.blit(text_surface, text_rect)
+
+    # Render text to prompt the player to enter the easy maze
+    text_surface = font.render("Press A To Enter The Arcade", True, "white")
+    text_rect = text_surface.get_rect(center=(WIDTH / 2, HEIGHT / 2 + 40))
     screen.blit(text_surface, text_rect)
 
     pygame.display.flip() # Update the display
