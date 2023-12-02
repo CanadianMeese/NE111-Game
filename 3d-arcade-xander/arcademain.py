@@ -1,3 +1,5 @@
+# Code written by Xander Linzel
+
 import pygame  # Import the pygame library for creating games
 import math  # Import math module for mathematical operation
 from pygame.locals import *  # Import constants from pygame
@@ -5,6 +7,7 @@ import time  # Import time module for time-related tasks
 import random  # Import random module for random number generation
 import rubikscubemain  # Import a custom module for a Rubik's Cube game
 import snakegamemain  # Import a custom module for a Snake game
+import minefieldgamemain  # Import a custom module for a Minefield game
 
 # Initialize pygame
 pygame.init()
@@ -140,15 +143,21 @@ player_pos = [1 * TILE_SIZE, 1 * TILE_SIZE] # Player position
 player_angle = 0 # Player angle
 
 def GameOne():
+    '''Run the code to launch the first game'''
     snakegamemain.snakegame() # Call the main function from the snakegamemain module
     gameonejustin = True # Set the gameonejustin variable to True
     
 def GameTwo():
+    '''Run the code to launch the second game'''
     rubikscubemain.rubiksgame() # Call the main function from the rubikscubemain module
     gametwojustin = True
 
 def GameThree():
-    var = 1
+    '''Run the code to launch the third game'''
+    pygame.mouse.set_visible(True)
+    minefieldgamemain.minefieldgame() # Call the main function from the rubikscubemain module
+    pygame.mouse.set_visible(False)
+    gametwojustin = True
 
 def RenderGameOne():
     ##Game One Rendering
